@@ -4,4 +4,5 @@ npm-debug.log
 *.pem
 *.crt
 *.key
-config.yml
+config.js
+test.js
