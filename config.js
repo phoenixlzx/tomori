@@ -10,7 +10,8 @@ module.exports = {
         },
         whitelistip: [
             ''
-        ]
+        ],
+        maxsize: 20971520
     },
     api: {
         key: 'your sparkpost api key'

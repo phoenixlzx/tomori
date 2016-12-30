@@ -8,8 +8,6 @@ var MailParser = require("mailparser").MailParser;
 var SparkPost = require('sparkpost');
 var client = new SparkPost(config['api'].key);
 
-var mailparser = new MailParser();
-
 var smtpOptions = {};
 
 smtpOptions.name = config['smtp'].hostname;
@@ -17,6 +15,7 @@ smtpOptions.secure = true;
 smtpOptions.cert = fs.readFileSync(config['smtp'].crt, 'utf8');
 smtpOptions.key = fs.readFileSync(config['smtp'].key, 'utf8');
 smtpOptions.authMethods = ['PLAIN', 'LOGIN'];
+smtpOptions.size = config['smtp'].maxsize;
 
 smtpOptions.onAuth = function(auth, session, callback) {
     if (!config['smtp']['user'][auth.username] || auth.password !== config['smtp']['user'][auth.username]) {
@@ -35,10 +34,19 @@ smtpOptions.onConnect = function(session, callback) {
     }
 };
 smtpOptions.onData = function(stream, session, callback){
-    stream.pipe(mailparser); // print message to console
+    var mailparser = new MailParser();
     stream.on('end', function (err) {
-        console.log('Message Received and Processing');
+        if (err) {
+            console.error('ERROR: ' + err);
+        } else {
+            console.log('Message Received and Processing');
+        }
+        callback();
     });
+    mailparser.on('end', function(mailobj) {
+        sendmail(mailobj);
+    });
+    stream.pipe(mailparser);
 };
 
 var server = new SMTPServer(smtpOptions);
@@ -48,19 +56,26 @@ server.on('error', function(err){
     console.error('Error: ', err);
 });
 
-mailparser.on('end', function(mailobj) {
-    sendmail(mailobj);
-});
-
 function sendmail (mailobj) {
 
     var mailcontent = {};
     mailcontent.content = {
-        from: mailobj.from[0],
+        from: {
+            email: mailobj.from[0].address,
+            name: mailobj.from[0].name
+        },
         subject: mailobj.subject,
         text: ''
     };
-    mailcontent.recipients = mailobj.to;
+    mailcontent.recipients = [];
+    mailobj.to.forEach(function(rec) {
+        mailcontent.recipients.push({
+            address: {
+                email: rec.address,
+                name: rec.name
+            }
+        });
+    });
 
     if (mailobj.html) {
         mailcontent.content.html = mailobj.html;
@@ -73,7 +88,7 @@ function sendmail (mailobj) {
         mailobj.attachments.forEach(function(att) {
             mailcontent.content.attachments.push({
                 type: att.contentType,
-                name: att.filename,
+                name: att.fileName,
                 data: att.content.toString('base64')
             });
         });
@@ -81,7 +96,7 @@ function sendmail (mailobj) {
 
     client.transmissions.send(mailcontent)
         .then(function (data) {
-            console.log('INFO: ' + data);
+            console.log('INFO: Message Sent');
         })
         .catch(function (err) {
             console.error('ERROR: ' + err);
