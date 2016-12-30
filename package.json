@@ -1,0 +1,24 @@
+{
+  "name": "tomori",
+  "version": "0.0.1",
+  "description": "SMTP to API relay",
+  "main": "tomori.js",
+  "scripts": {
+    "start": "node tomori.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/phoenixlzx/tomori.git"
+  },
+  "author": "Phoenix Nemo <i@phoenixlzx.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/phoenixlzx/tomori/issues"
+  },
+  "homepage": "https://github.com/phoenixlzx/tomori#readme",
+  "dependencies": {
+    "mailparser": "^0.6.1",
+    "smtp-server": "^1.17.0",
+    "sparkpost": "^2.1.0"
+  }
+}
