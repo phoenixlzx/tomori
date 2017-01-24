@@ -76,6 +76,30 @@ function sendmail (mailobj) {
             }
         });
     });
+	if (mailobj.cc && mailobj.cc.length !== 0) {
+		mailobj.cc.forEach(function(cc) {
+		    mailobj.to.forEach(function(rec) {
+                mailcontent.recipients.push({
+                    address: {
+                        email: cc,
+                        header_to: rec.address
+                    }
+                });
+            });
+		});
+	}
+    if (mailobj.bcc && mailobj.bcc.length !== 0) {
+        mailobj.bcc.forEach(function(bcc) {
+            mailobj.to.forEach(function(rec) {
+                mailcontent.recipients.push({
+                    address: {
+                        email: bcc,
+                        header_to: rec.address
+                    }
+                });
+            });
+        });
+    }
 
     if (mailobj.html) {
         mailcontent.content.html = mailobj.html;
