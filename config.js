@@ -11,7 +11,10 @@ module.exports = {
         whitelistip: [
             ''
         ],
-        maxsize: 20971520
+        maxsize: 20971520,
+
+        open_tracking: false,
+        click_tracking: false
     },
     api: {
         key: 'your sparkpost api key'

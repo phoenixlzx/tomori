@@ -118,6 +118,11 @@ function sendmail (mailobj) {
         });
     }
 
+    mailcontent.options = {
+        open_tracking: config['smtp'].open_tracking,
+        click_tracking: config['smtp'].click_tracking
+    };
+
     client.transmissions.send(mailcontent)
         .then(function (data) {
             console.log('INFO: Message Sent');
